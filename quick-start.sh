@@ -36,11 +36,48 @@ step "Step 1/6 — Checking Docker"
 if command -v docker &>/dev/null; then
   info "Docker already installed: $(docker --version)"
 else
-  warn "Docker not found — installing via get.docker.com …"
-  curl -fsSL https://get.docker.com -o /tmp/get-docker.sh
-  sudo sh /tmp/get-docker.sh
+  warn "Docker not found — installing …"
+
+  # Detect distro info
+  if [[ -f /etc/os-release ]]; then
+    . /etc/os-release
+  fi
+
+  # Kali, Parrot, and other Debian derivatives are not recognised by
+  # get.docker.com, so we install Docker manually with a known-good
+  # Debian codename (bookworm).
+  _ID="${ID:-}"
+  _ID_LIKE="${ID_LIKE:-}"
+
+  if [[ "$_ID" == "kali" ]] || [[ "$_ID" == "parrot" ]] || \
+     { [[ "$_ID_LIKE" == *"debian"* ]] && ! [[ "$_ID" =~ ^(debian|ubuntu|raspbian)$ ]]; }; then
+    warn "Detected $_ID (Debian derivative) — using manual Docker install with bookworm repo"
+
+    sudo apt-get update -qq
+    sudo apt-get install -y -qq ca-certificates curl gnupg >/dev/null
+
+    sudo install -m 0755 -d /etc/apt/keyrings
+    curl -fsSL https://download.docker.com/linux/debian/gpg \
+      | sudo gpg --dearmor --yes -o /etc/apt/keyrings/docker.gpg
+    sudo chmod a+r /etc/apt/keyrings/docker.gpg
+
+    echo \
+      "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] \
+      https://download.docker.com/linux/debian bookworm stable" \
+      | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+    sudo apt-get update -qq
+    sudo apt-get install -y -qq \
+      docker-ce docker-ce-cli containerd.io \
+      docker-buildx-plugin docker-compose-plugin >/dev/null
+  else
+    # Standard distros (Debian, Ubuntu, etc.) — use the convenience script
+    curl -fsSL https://get.docker.com -o /tmp/get-docker.sh
+    sudo sh /tmp/get-docker.sh
+    rm -f /tmp/get-docker.sh
+  fi
+
   sudo usermod -aG docker "$USER"
-  rm -f /tmp/get-docker.sh
   info "Docker installed. You may need to log out & back in for group changes."
   info "Re-run this script after re-login if Docker commands fail."
 fi
