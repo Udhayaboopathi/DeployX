@@ -53,7 +53,12 @@ else
      { [[ "$_ID_LIKE" == *"debian"* ]] && ! [[ "$_ID" =~ ^(debian|ubuntu|raspbian)$ ]]; }; then
     warn "Detected $_ID (Debian derivative) — using manual Docker install with bookworm repo"
 
+    # Prompt for sudo password upfront so it's visible to the user
+    sudo -v || { err "sudo authentication failed"; exit 1; }
+
+    info "Updating package lists …"
     sudo apt-get update -qq
+    info "Installing prerequisites …"
     sudo apt-get install -y -qq ca-certificates curl gnupg >/dev/null
 
     sudo install -m 0755 -d /etc/apt/keyrings
