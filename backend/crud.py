@@ -1,14 +1,7 @@
 from sqlalchemy.orm import Session
 from models import User
 from schemas import UserCreate
-from passlib.context import CryptContext
-
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-
-def get_password_hash(password: str) -> str:
-    """Hash a password"""
-    return pwd_context.hash(password)
+from password import get_password_hash
 
 
 def create_user(db: Session, user: UserCreate, is_superuser: bool = False) -> User:

@@ -4,7 +4,7 @@ import os
 
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
-    "postgresql://deployx_user:change_this_password@postgres:5432/deployx",
+    "postgresql://deployx_user:change_this_password@localhost:5432/deployx",
 )
 
 engine = create_engine(DATABASE_URL, pool_pre_ping=True, pool_size=10, max_overflow=20)

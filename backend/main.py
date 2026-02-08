@@ -18,8 +18,9 @@ from schemas import (
 )
 from auth import (
     authenticate_user, create_access_token, get_current_user,
-    get_password_hash, ACCESS_TOKEN_EXPIRE_MINUTES,
+    ACCESS_TOKEN_EXPIRE_MINUTES,
 )
+from password import get_password_hash
 from cloudflare_service import CloudflareService
 from crud import create_user, get_user_by_email, get_user_by_username
 

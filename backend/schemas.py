@@ -122,18 +122,13 @@ class PlatformStatus(BaseModel):
 
 class AuditLogResponse(BaseModel):
     id: uuid.UUID
+    user_id: Optional[uuid.UUID] = None
     action: str
     resource_type: Optional[str] = None
     resource_id: Optional[str] = None
     details: Optional[dict] = None
+    ip_address: Optional[str] = None
     created_at: datetime
 
-    class Config:
-        from_attributes = True
-    description: Optional[str]
-    repository_url: Optional[str]
-    status: str
-    created_at: datetime
-    
     class Config:
         from_attributes = True
